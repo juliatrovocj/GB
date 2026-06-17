@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório de Performance | Grand Brasil — Jun 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black:    #0A0A0A;
+    --white:    #FFFFFF;
+    --silver:   #C8C8C8;
+    --mid:      #6B6B6B;
+    --surface:  #111111;
+    --card:     #1A1A1A;
+    --border:   #2A2A2A;
+
+    /* brand accents */
+    --bmw-blue:   #1C69D3;
+    --mini-red:   #C7152A;
+    --denza-gold: #C5A44A;
+
+    --accent:     #FFFFFF;
+    --radius:     4px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--black);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .logo-text {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--white);
+  }
+
+  .logo-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--mid);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .header-period {
+    font-size: 12px;
+    color: var(--mid);
+    letter-spacing: 0.05em;
+  }
+
+  .header-period span {
+    color: var(--silver);
+    font-weight: 500;
+  }
+
+  /* ── NAV TABS ── */
+  .nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex;
+    gap: 0;
+  }
+
+  .nav-btn {
+    padding: 14px 24px;
+    background: none;
+    border: none;
+    color: var(--mid);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-btn:hover { color: var(--silver); }
+
+  .nav-btn.active {
+    color: var(--white);
+    border-bottom-color: var(--white);
+  }
+
+  .nav-btn.bmw.active   { border-bottom-color: var(--bmw-blue);   color: var(--white); }
+  .nav-btn.mini.active  { border-bottom-color: var(--mini-red);   color: var(--white); }
+  .nav-btn.denza.active { border-bottom-color: var(--denza-gold); color: var(--white); }
+
+  /* ── VIEWS ── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── SECTION ── */
+  .section {
+    padding: 40px 40px 0;
+  }
+
+  .section-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 1px;
+  }
+
+  .section-title.bmw::before   { background: var(--bmw-blue);   }
+  .section-title.mini::before  { background: var(--mini-red);   }
+  .section-title.denza::before { background: var(--denza-gold); }
+
+  /* ── KPI GRID ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kpi-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--border);
+  }
+
+  .kpi-card.accent-bmw::after   { background: var(--bmw-blue);   }
+  .kpi-card.accent-mini::after  { background: var(--mini-red);   }
+  .kpi-card.accent-denza::after { background: var(--denza-gold); }
+  .kpi-card.accent-white::after { background: var(--white);      }
+
+  .kpi-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 10px;
+  }
+
+  .kpi-value {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .kpi-sub {
+    font-size: 11px;
+    color: var(--mid);
+  }
+
+  /* ── BRAND BADGE ── */
+  .brand-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 2px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .brand-badge.bmw   { background: rgba(28,105,211,0.15); color: #5B9FFF; border: 1px solid rgba(28,105,211,0.3); }
+  .brand-badge.mini  { background: rgba(199,21,42,0.15);  color: #FF6B7A; border: 1px solid rgba(199,21,42,0.3);  }
+  .brand-badge.denza { background: rgba(197,164,74,0.15); color: #E8C76B; border: 1px solid rgba(197,164,74,0.3); }
+
+  /* ── MEDIA SPLIT TABLE ── */
+  .split-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+
+  @media(max-width: 700px) { .split-row { grid-template-columns: 1fr; } }
+
+  .media-block {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .media-header {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .media-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .media-icon.google { background: #fff; color: #333; font-size: 9px; }
+  .media-icon.meta   { background: linear-gradient(135deg, #405DE6, #833AB4, #FD1D1D); color: #fff; }
+
+  .media-name {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--silver);
+  }
+
+  .media-rows {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .media-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .media-row-label { font-size: 12px; color: var(--mid); }
+  .media-row-val   { font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 600; color: var(--white); }
+
+  /* ── CRM TABLE ── */
+  .crm-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 40px;
+  }
+
+  .crm-table th {
+    text-align: left;
+    padding: 10px 16px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mid);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .crm-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--silver);
+  }
+
+  .crm-table tr:last-child td { border-bottom: none; font-weight: 600; color: var(--white); }
+  .crm-table tr:last-child td:first-child { color: var(--mid); }
+  .crm-table .total-row td { background: rgba(255,255,255,0.03); }
+
+  /* ── CONSOLIDATED TABLE ── */
+  .consolidated-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 40px;
+  }
+
+  .consolidated-table th {
+    text-align: left;
+    padding: 12px 20px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mid);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .consolidated-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+  }
+
+  .consolidated-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .consolidated-table .brand-row-bmw td:first-child   { border-left: 3px solid var(--bmw-blue);   }
+  .consolidated-table .brand-row-mini td:first-child  { border-left: 3px solid var(--mini-red);   }
+  .consolidated-table .brand-row-denza td:first-child { border-left: 3px solid var(--denza-gold); }
+
+  .consolidated-table .total-row {
+    background: rgba(255,255,255,0.04);
+  }
+
+  .consolidated-table .total-row td {
+    font-weight: 700;
+    font-size: 15px;
+    border-top: 1px solid var(--border);
+  }
+
+  .highlight-val { color: var(--white); }
+  .dim-val { color: var(--mid); font-size: 12px; font-family: 'Inter', sans-serif; }
+  .note-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    font-size: 10px;
+    font-family: 'Inter', sans-serif;
+    color: var(--mid);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    padding: 40px;
+    border-top: 1px solid var(--border);
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .footer-note {
+    font-size: 11px;
+    color: var(--mid);
+    max-width: 600px;
+    line-height: 1.8;
+  }
+
+  .footer-brand {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mid);
+  }
+
+  /* ── SPACER ── */
+  .pb { padding-bottom: 40px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-logo">
+    <span class="logo-text">Grand Brasil</span>
+    <div class="logo-divider"></div>
+    <span class="logo-sub">Relatório de Performance</span>
+  </div>
+  <div class="header-period">
+    Período: <span>1–16 de junho de 2026</span>
+  </div>
+</header>
+
+<!-- NAV TABS -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="showView('geral', this)">Consolidado</button>
+  <button class="nav-btn bmw"   onclick="showView('bmw',   this)">BMW</button>
+  <button class="nav-btn mini"  onclick="showView('mini',  this)">MINI</button>
+  <button class="nav-btn denza" onclick="showView('denza', this)">Denza</button>
+</nav>
+
+
+<!-- ═══════════════════ VIEW: GERAL ═══════════════════ -->
+<div id="view-geral" class="view active">
+
+  <div class="section">
+    <div class="section-title">Visão Geral — Todas as Marcas</div>
+    <div class="kpi-grid">
+      <div class="kpi-card accent-white">
+        <div class="kpi-label">Investimento Total</div>
+        <div class="kpi-value">R$ 17k</div>
+        <div class="kpi-sub">R$&nbsp;16.968,56 no período</div>
+      </div>
+      <div class="kpi-card accent-white">
+        <div class="kpi-label">Leads no CRM</div>
+        <div class="kpi-value">172</div>
+        <div class="kpi-sub">BMW + Denza (MINI sem CRM)</div>
+      </div>
+      <div class="kpi-card accent-white">
+        <div class="kpi-label">CPL Médio</div>
+        <div class="kpi-value">R$ 99</div>
+        <div class="kpi-sub">Invest. ÷ leads CRM</div>
+      </div>
+      <div class="kpi-card accent-white">
+        <div class="kpi-label">Vendas (CRM)</div>
+        <div class="kpi-value">3</div>
+        <div class="kpi-sub">2 Denza · 1 BMW</div>
+      </div>
+      <div class="kpi-card accent-white">
+        <div class="kpi-label">Cliques Totais</div>
+        <div class="kpi-value">32,8k</div>
+        <div class="kpi-sub">Google + Meta (Denza)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Por Marca</div>
+    <table class="consolidated-table">
+      <thead>
+        <tr>
+          <th>Marca</th>
+          <th>Mídia</th>
+          <th>Investimento</th>
+          <th>Cliques</th>
+          <th>Leads CRM</th>
+          <th>CPL</th>
+          <th>Vendas</th>
+          <th>Custo/Venda</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="brand-row-bmw">
+          <td><span class="highlight-val">BMW</span></td>
+          <td><span class="dim-val">Google</span></td>
+          <td class="highlight-val">R$ 2.600,96</td>
+          <td class="highlight-val">1.005</td>
+          <td class="highlight-val">9</td>
+          <td class="highlight-val">R$ 289,00</td>
+          <td class="highlight-val">1</td>
+          <td class="highlight-val">R$ 2.600,96</td>
+        </tr>
+        <tr class="brand-row-mini">
+          <td><span class="highlight-val">MINI</span></td>
+          <td><span class="dim-val">Google</span></td>
+          <td class="highlight-val">R$ 1.951,33</td>
+          <td class="highlight-val">23.373</td>
+          <td><span class="note-tag">sem CRM</span></td>
+          <td><span class="note-tag">—</span></td>
+          <td><span class="note-tag">—</span></td>
+          <td><span class="note-tag">—</span></td>
+        </tr>
+        <tr class="brand-row-denza">
+          <td><span class="highlight-val">Denza</span></td>
+          <td><span class="dim-val">Google + Meta</span></td>
+          <td class="highlight-val">R$ 12.416,27</td>
+          <td class="highlight-val">9.682</td>
+          <td class="highlight-val">163</td>
+          <td class="highlight-val">R$ 76,17</td>
+          <td class="highlight-val">2</td>
+          <td class="highlight-val">R$ 6.208,14</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="2">Total</td>
+          <td class="highlight-val">R$ 16.968,56</td>
+          <td class="highlight-val">34.060</td>
+          <td class="highlight-val">172</td>
+          <td class="highlight-val">R$ 98,65</td>
+          <td class="highlight-val">3</td>
+          <td class="highlight-val">R$ 5.656,19</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+<!-- ═════════════════ END VIEW GERAL ═════════════════ -->
+
+
+<!-- ═══════════════════ VIEW: BMW ═══════════════════ -->
+<div id="view-bmw" class="view">
+  <div class="section">
+    <div class="brand-badge bmw">● BMW</div>
+    <div class="section-title bmw">KPIs Principais</div>
+    <div class="kpi-grid">
+      <div class="kpi-card accent-bmw">
+        <div class="kpi-label">Investimento Google</div>
+        <div class="kpi-value">R$ 2.601</div>
+        <div class="kpi-sub">Jun 1–16 · 4 campanhas</div>
+      </div>
+      <div class="kpi-card accent-bmw">
+        <div class="kpi-label">Cliques</div>
+        <div class="kpi-value">1.005</div>
+        <div class="kpi-sub">Google Search + PMax</div>
+      </div>
+      <div class="kpi-card accent-bmw">
+        <div class="kpi-label">Leads no CRM</div>
+        <div class="kpi-value">9</div>
+        <div class="kpi-sub">Clientes em atendimento</div>
+      </div>
+      <div class="kpi-card accent-bmw">
+        <div class="kpi-label">CPL</div>
+        <div class="kpi-value">R$ 289</div>
+        <div class="kpi-sub">Invest. ÷ leads CRM</div>
+      </div>
+      <div class="kpi-card accent-bmw">
+        <div class="kpi-label">Vendas (CRM)</div>
+        <div class="kpi-value">1</div>
+        <div class="kpi-sub">Custo/venda: R$&nbsp;2.601</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title bmw">Mídia</div>
+    <div class="split-row">
+      <div class="media-block">
+        <div class="media-header">
+          <div class="media-icon google">G</div>
+          <span class="media-name">Google Ads</span>
+        </div>
+        <div class="media-rows">
+          <div class="media-row"><span class="media-row-label">Investimento</span><span class="media-row-val">R$ 2.600,96</span></div>
+          <div class="media-row"><span class="media-row-label">Cliques</span><span class="media-row-val">1.005</span></div>
+          <div class="media-row"><span class="media-row-label">Campanhas</span><span class="media-row-val">PMax · Search</span></div>
+          <div class="media-row"><span class="media-row-label">Unidades</span><span class="media-row-val">Alphaville · Vidigal</span></div>
+        </div>
+      </div>
+      <div class="media-block">
+        <div class="media-header">
+          <div class="media-icon meta">f</div>
+          <span class="media-name">Meta Ads</span>
+        </div>
+        <div class="media-rows">
+          <div class="media-row"><span class="media-row-label">Status</span><span class="media-row-val" style="color:var(--mid);font-size:12px">Não ativo no período</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title bmw">CRM — Origem dos Leads</div>
+    <table class="crm-table">
+      <thead>
+        <tr>
+          <th>Origem</th>
+          <th>Leads</th>
+          <th>Vendas</th>
+          <th>Taxa de conversão</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Google</td><td>4</td><td>0</td><td>0%</td></tr>
+        <tr><td>Instagram Lead Ads</td><td>2</td><td>0</td><td>0%</td></tr>
+        <tr><td>Facebook Lead Ads</td><td>2</td><td>0</td><td>0%</td></tr>
+        <tr><td>Facebook</td><td>1</td><td>0</td><td>0%</td></tr>
+        <tr><td>Ligações site / Google</td><td>0</td><td>1</td><td>—</td></tr>
+        <tr class="total-row"><td>Total</td><td>9</td><td>1</td><td>11,11%</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!-- ═════════════════ END VIEW BMW ═════════════════ -->
+
+
+<!-- ═══════════════════ VIEW: MINI ═══════════════════ -->
+<div id="view-mini" class="view">
+  <div class="section">
+    <div class="brand-badge mini">● MINI</div>
+    <div class="section-title mini">KPIs Principais</div>
+    <div class="kpi-grid">
+      <div class="kpi-card accent-mini">
+        <div class="kpi-label">Investimento Google</div>
+        <div class="kpi-value">R$ 1.951</div>
+        <div class="kpi-sub">Jun 1–16 · PMax</div>
+      </div>
+      <div class="kpi-card accent-mini">
+        <div class="kpi-label">Cliques</div>
+        <div class="kpi-value">23.373</div>
+        <div class="kpi-sub">Performance Max</div>
+      </div>
+      <div class="kpi-card accent-mini">
+        <div class="kpi-label">CPC Médio</div>
+        <div class="kpi-value">R$ 0,08</div>
+        <div class="kpi-sub">Invest. ÷ cliques</div>
+      </div>
+      <div class="kpi-card" style="border-color:#3A2020;">
+        <div class="kpi-label">Leads CRM</div>
+        <div class="kpi-value" style="color:var(--mid);font-size:18px;">Não informado</div>
+        <div class="kpi-sub">CRM não enviado para o período</div>
+      </div>
+      <div class="kpi-card" style="border-color:#3A2020;">
+        <div class="kpi-label">CPL</div>
+        <div class="kpi-value" style="color:var(--mid);font-size:18px;">—</div>
+        <div class="kpi-sub">Aguardando CRM</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title mini">Mídia</div>
+    <div class="split-row">
+      <div class="media-block">
+        <div class="media-header">
+          <div class="media-icon google">G</div>
+          <span class="media-name">Google Ads — Performance Max</span>
+        </div>
+        <div class="media-rows">
+          <div class="media-row"><span class="media-row-label">Investimento</span><span class="media-row-val">R$ 1.951,33</span></div>
+          <div class="media-row"><span class="media-row-label">Cliques</span><span class="media-row-val">23.373</span></div>
+          <div class="media-row"><span class="media-row-label">Impressões</span><span class="media-row-val">442.131</span></div>
+          <div class="media-row"><span class="media-row-label">CTR Médio</span><span class="media-row-val">5,75%</span></div>
+        </div>
+      </div>
+      <div class="media-block">
+        <div class="media-header">
+          <div class="media-icon meta">f</div>
+          <span class="media-name">Meta Ads</span>
+        </div>
+        <div class="media-rows">
+          <div class="media-row"><span class="media-row-label">Status</span><span class="media-row-val" style="color:var(--mid);font-size:12px">Não ativo no período</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section pb">
+    <div class="section-title mini">CRM</div>
+    <div style="background:var(--card);border:1px solid #2A1A1A;border-radius:var(--radius);padding:24px;color:var(--mid);font-size:13px;line-height:1.8;">
+      ⚠ Dados de CRM da MINI não foram incluídos no arquivo enviado. CPL e custo por venda não podem ser calculados para esta marca neste relatório.
+      <br>Recomendação: enviar extrato do CRM por unidade (Alphaville) para complementar a análise.
+    </div>
+  </div>
+</div>
+<!-- ═════════════════ END VIEW MINI ═════════════════ -->
+
+
+<!-- ═══════════════════ VIEW: DENZA ═══════════════════ -->
+<div id="view-denza" class="view">
+  <div class="section">
+    <div class="brand-badge denza">● Denza</div>
+    <div class="section-title denza">KPIs Principais</div>
+    <div class="kpi-grid">
+      <div class="kpi-card accent-denza">
+        <div class="kpi-label">Investimento Total</div>
+        <div class="kpi-value">R$ 12.416</div>
+        <div class="kpi-sub">Google R$6.090 · Meta R$6.326</div>
+      </div>
+      <div class="kpi-card accent-denza">
+        <div class="kpi-label">Leads no CRM</div>
+        <div class="kpi-value">163</div>
+        <div class="kpi-sub">Clientes em atendimento</div>
+      </div>
+      <div class="kpi-card accent-denza">
+        <div class="kpi-label">CPL</div>
+        <div class="kpi-value">R$ 76</div>
+        <div class="kpi-sub">Invest. total ÷ leads CRM</div>
+      </div>
+      <div class="kpi-card accent-denza">
+        <div class="kpi-label">Vendas (CRM)</div>
+        <div class="kpi-value">2</div>
+        <div class="kpi-sub">Taxa conv.: 1,23%</div>
+      </div>
+      <div class="kpi-card accent-denza">
+        <div class="kpi-label">Custo por Venda</div>
+        <div class="kpi-value">R$ 6.208</div>
+        <div class="kpi-sub">Invest. total ÷ vendas</div>
+      </div>
+      <div class="kpi-card accent-denza">
+        <div class="kpi-label">Leads Meta (plataforma)</div>
+        <div class="kpi-value">219</div>
+        <div class="kpi-sub">Formulário Meta Ads</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title denza">Mídia</div>
+    <div class="split-row">
+      <div class="media-block">
+        <div class="media-header">
+          <div class="media-icon google">G</div>
+          <span class="media-name">Google Ads</span>
+        </div>
+        <div class="media-rows">
+          <div class="media-row"><span class="media-row-label">Investimento</span><span class="media-row-val">R$ 6.090,34</span></div>
+          <div class="media-row"><span class="media-row-label">Cliques</span><span class="media-row-val">8.461</span></div>
+          <div class="media-row"><span class="media-row-label">Campanhas</span><span class="media-row-val">Search · PMax Visitas</span></div>
+          <div class="media-row"><span class="media-row-label">Leads CRM (Google)</span><span class="media-row-val">1</span></div>
+        </div>
+      </div>
+      <div class="media-block">
+        <div class="media-header">
+          <div class="media-icon meta">f</div>
+          <span class="media-name">Meta Ads</span>
+        </div>
+        <div class="media-rows">
+          <div class="media-row"><span class="media-row-label">Investimento Total</span><span class="media-row-val">R$ 6.325,93</span></div>
+          <div class="media-row"><span class="media-row-label">— Campanha Leads</span><span class="media-row-val">R$ 5.661,13</span></div>
+          <div class="media-row"><span class="media-row-label">— Campanha Alcance</span><span class="media-row-val">R$ 664,80</span></div>
+          <div class="media-row"><span class="media-row-label">Leads Meta (plataforma)</span><span class="media-row-val">219</span></div>
+          <div class="media-row"><span class="media-row-label">Leads CRM Meta</span><span class="media-row-val">162</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title denza">CRM — Origem dos Leads</div>
+    <table class="crm-table">
+      <thead>
+        <tr>
+          <th>Origem</th>
+          <th>Leads</th>
+          <th>Vendas</th>
+          <th>Taxa de conversão</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Instagram Lead Ads</td><td>93</td><td>1</td><td>1,08%</td></tr>
+        <tr><td>Facebook Lead Ads</td><td>67</td><td>0</td><td>0%</td></tr>
+        <tr><td>Facebook</td><td>2</td><td>0</td><td>0%</td></tr>
+        <tr><td>Google</td><td>1</td><td>1</td><td>100%</td></tr>
+        <tr class="total-row"><td>Total</td><td>163</td><td>2</td><td>1,23%</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!-- ═════════════════ END VIEW DENZA ═════════════════ -->
+
+
+<!-- FOOTER -->
+<footer class="footer">
+  <p class="footer-note">
+    Leads considerados: apenas registros no CRM do cliente. CPL calculado com base em investimento total da mídia ÷ leads no CRM.
+    Dados de mídia: Google Ads (todas as marcas) e Meta Ads (Denza). Período: 1 a 16 de junho de 2026.
+    <br>⚠ MINI: CRM não disponível neste relatório — CPL e vendas não calculados.
+  </p>
+  <div class="footer-brand">Grand Brasil · Performance</div>
+</footer>
+
+<script>
+  function showView(id, btn) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('view-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
